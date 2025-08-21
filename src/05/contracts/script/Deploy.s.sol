@@ -34,6 +34,6 @@ contract Deploy is Script {
             "}}"
         );
 
-        vm.writeJson(deploymentInfo, "./deployments/deployment.json");
+        vm.writeJson(deploymentInfo, string.concat("./deployments/", vm.toString(block.chainid), ".json"));
     }
 }
