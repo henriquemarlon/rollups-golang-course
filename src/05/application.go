@@ -18,7 +18,7 @@ import (
 
 var (
 	nftAddress        common.Address
-	nftFactoryAddress = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa") // TODO: replace with the actual address
+	nftFactoryAddress = common.HexToAddress("0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0") // NOTE: this address is computed from the salt "1596"
 )
 
 type Application struct{}

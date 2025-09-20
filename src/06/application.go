@@ -19,10 +19,10 @@ import (
 
 var (
 	nftAddress               common.Address
-	nftFactoryAddress        = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa") // TODO: replace with the actual address
-	safeERC721MintAddress    = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa") // TODO: replace with the actual address
-	safeERC20TransferAddress = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa") // TODO: replace with the actual address
-	emergencyWithdrawAddress = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa") // TODO: replace with the actual address
+	nftFactoryAddress        = common.HexToAddress("0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0") // NOTE: this address is computed from the salt "1596"
+	safeERC721MintAddress    = common.HexToAddress("0x4F85347240488E62ab1C6169Cbc532A09223efa4") // NOTE: this address is computed from the salt "1596"
+	safeERC20TransferAddress = common.HexToAddress("0x86E244fbb3243f19492A3d61336e285bbf8E6154") // NOTE: this address is computed from the salt "1596"
+	emergencyWithdrawAddress = common.HexToAddress("0xA716b0bE3a59b05A307b98c6bAf9d21dF796F37d") // NOTE: this address is computed from the salt "1596"
 )
 
 type Application struct{}

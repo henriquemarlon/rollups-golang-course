@@ -9,7 +9,7 @@ contract Deploy is Script {
 
     function run() public returns (NFTFactory) {
         vm.startBroadcast();
-        nftFactory = new NFTFactory();
+        nftFactory = new NFTFactory{salt: keccak256("1596")}();
         vm.stopBroadcast();
 
         _saveDeploymentInfo();

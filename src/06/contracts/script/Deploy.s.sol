@@ -19,13 +19,12 @@ contract Deploy is Script {
     function run() public returns (SafeERC721Mint, EmergencyWithdraw, SafeERC20Transfer, Token, NFTFactory) {
         vm.startBroadcast();
         
-        safeERC721Mint = new SafeERC721Mint();
-        emergencyWithdraw = new EmergencyWithdraw();
-        safeERC20Transfer = new SafeERC20Transfer();
+        safeERC721Mint = new SafeERC721Mint{salt: keccak256("1596")}();
+        emergencyWithdraw = new EmergencyWithdraw{salt: keccak256("1596")}();
+        safeERC20Transfer = new SafeERC20Transfer{salt: keccak256("1596")}();
+        nftFactory = new NFTFactory{salt: keccak256("1596")}();
         
         token = new Token();
-        
-        nftFactory = new NFTFactory();
         
         vm.stopBroadcast();
 
