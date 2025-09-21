@@ -17,11 +17,12 @@ import (
 )
 
 var (
-	nftAddress        common.Address
 	nftFactoryAddress = common.HexToAddress("0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0") // NOTE: this address is computed from the salt "1596"
 )
 
-type Application struct{}
+type Application struct {
+	NftAddress common.Address
+}
 
 func (a *Application) Advance(
 	env rollmelette.Env,
@@ -65,7 +66,7 @@ func (a *Application) Advance(
 		if err != nil {
 			return fmt.Errorf("error encoding constructor args: %w", err)
 		}
-		nftAddress = crypto.CreateAddress2(
+		a.NftAddress = crypto.CreateAddress2(
 			nftFactoryAddress,
 			common.HexToHash(strconv.Itoa(metadata.Index)),
 			crypto.Keccak256(append(bytecode, constructorArgs...)),
@@ -95,7 +96,7 @@ func (a *Application) Advance(
 		if err != nil {
 			return err
 		}
-		env.Voucher(nftAddress, big.NewInt(0), voucher)
+		env.Voucher(a.NftAddress, big.NewInt(0), voucher)
 		return nil
 
 	default:
@@ -120,7 +121,7 @@ func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) erro
 	case "contracts":
 		contractsJson := fmt.Sprintf(
 			`[{"name":"NFT","address":"%s"},{"name":"NFTFactory","address":"%s"}]`,
-			nftAddress,
+			a.NftAddress,
 			nftFactoryAddress,
 		)
 		env.Report([]byte(contractsJson))

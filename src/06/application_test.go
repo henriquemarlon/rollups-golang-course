@@ -9,54 +9,104 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/rollmelette/rollmelette"
 	"github.com/stretchr/testify/suite"
 )
 
-func TestDelegateCallVoucher(t *testing.T) {
-	suite.Run(t, new(DelegateCallVoucher))
+var msgSender = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa")
+
+func TestApplicationSuite(t *testing.T) {
+	suite.Run(t, new(ApplicationSuite))
 }
 
-type DelegateCallVoucher struct {
+type ApplicationSuite struct {
 	suite.Suite
 	tester *rollmelette.Tester
 }
 
-func (s *DelegateCallVoucher) SetupTest() {
+func (s *ApplicationSuite) SetupTest() {
 	app := new(Application)
 	s.tester = rollmelette.NewTester(app)
 }
 
-func (s *DelegateCallVoucher) TestVoucherDeployNFT() {
-	application := common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
+func (s *ApplicationSuite) TestVoucherDeployNFT() {
+	applicationAddress := common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
 
-	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"MyToken","symbol":"MTK"}}`)
-	deployNFTOutput := s.tester.Advance(common.HexToAddress("0x0000000000000000000000000000000000000000"), deployNFTInput)
-	s.Nil(deployNFTOutput.Err)
-	s.Len(deployNFTOutput.Vouchers, 1)
-	s.Equal(nftFactoryAddress, deployNFTOutput.Vouchers[0].Destination)
+	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"Token","symbol":"MTK"}}`)
+	newNFTOutput := s.tester.Advance(msgSender, deployNFTInput)
+	s.Len(newNFTOutput.Vouchers, 1)
+	s.Nil(newNFTOutput.Err)
+	s.Equal(nftFactoryAddress, newNFTOutput.Vouchers[0].Destination)
 
-	abiJSON := `[{
-		"type":"function",
-		"name":"newNFT",
-		"inputs":[
-			{"type":"address"},
-			{"type":"bytes32"}
+	abiJson := `[{
+		"type": "function",
+		"name": "newNFT",
+		"inputs": [
+			{"type": "address"},
+			{"type": "bytes32"}
 		]
 	}]`
-	newNFTABI, err := abi.JSON(strings.NewReader(abiJSON))
+
+	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
-	unpacked, err := newNFTABI.Methods["newNFT"].Inputs.Unpack(deployNFTOutput.Vouchers[0].Payload[4:])
+	unpacked, err := abiInterface.Methods["newNFT"].Inputs.Unpack(newNFTOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-	s.Equal(application, unpacked[0].(common.Address))
+
+	s.Equal(applicationAddress, unpacked[0])
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(0)), common.BytesToHash(saltBytes[:]))
 }
 
-func (s *DelegateCallVoucher) TestDelegateCallVoucherMintNFT() {
-	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+func (s *ApplicationSuite) TestDelegatecallVoucherMintNFT() {
 	uri := "https://example.com/token/1"
+	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
+	applicationAddress := common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
+
+	// Deploy
+	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"Token","symbol":"TKN"}}`)
+	newNFTOutput := s.tester.Advance(msgSender, deployNFTInput)
+	s.Len(newNFTOutput.Vouchers, 1)
+	s.Nil(newNFTOutput.Err)
+	s.Equal(nftFactoryAddress, newNFTOutput.Vouchers[0].Destination)
+
+	abiJson := `[{
+		"type": "function",
+		"name": "newNFT",
+		"inputs": [
+			{"type": "address"},
+			{"type": "bytes32"}
+		]
+	}]`
+	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
+	s.Require().NoError(err)
+
+	unpacked, err := abiInterface.Methods["newNFT"].Inputs.Unpack(newNFTOutput.Vouchers[0].Payload[4:])
+	s.Require().NoError(err)
+
+	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(0)), common.BytesToHash(saltBytes[:]))
+
+	// Mint
+	bytecode, err := getNFTBytecode()
+	s.Require().NoError(err)
+
+	stringType, _ := abi.NewType("string", "", nil)
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, "Token", "TKN")
+	s.Require().NoError(err)
+
+	nftAddress := crypto.CreateAddress2(
+		nftFactoryAddress,
+		common.HexToHash(strconv.Itoa(0)),
+		crypto.Keccak256(append(bytecode, constructorArgs...)),
+	)
 
 	mintNFTInput := []byte(fmt.Sprintf(`{"path":"mint_nft","data":{"to":"%s","uri":"%s"}}`, to, uri))
 	mintNFTOutput := s.tester.Advance(to, mintNFTInput)
@@ -76,19 +126,19 @@ func (s *DelegateCallVoucher) TestDelegateCallVoucherMintNFT() {
 	safeMintABI, err := abi.JSON(strings.NewReader(abiJSON))
 	s.Require().NoError(err)
 
-	unpacked, err := safeMintABI.Methods["safeMint"].Inputs.Unpack(mintNFTOutput.DelegateCallVouchers[0].Payload[4:])
+	unpacked, err = safeMintABI.Methods["safeMint"].Inputs.Unpack(mintNFTOutput.DelegateCallVouchers[0].Payload[4:])
 	s.Require().NoError(err)
 	s.Equal(nftAddress, unpacked[0].(common.Address))
 	s.Equal(to, unpacked[1].(common.Address))
 	s.Equal(uri, unpacked[2].(string))
 }
 
-func (s *DelegateCallVoucher) TestDelegateCallVoucherSafeTransfer() {
+func (s *ApplicationSuite) TestDelegateCallVoucherSafeERC20Transfer() {
 	amount := big.NewInt(10000)
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	token := common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa")
 
-	safeTransferInput := []byte(fmt.Sprintf(`{"path":"safe_transfer","data":{"token":"%s","to":"%s","amount":"%s"}}`, token, to, amount))
+	safeTransferInput := []byte(fmt.Sprintf(`{"path":"safe_erc20_transfer","data":{"token":"%s","to":"%s","amount":"%s"}}`, token, to, amount))
 	safeTransferOutput := s.tester.Advance(to, safeTransferInput)
 	s.Nil(safeTransferOutput.Err)
 	s.Len(safeTransferOutput.DelegateCallVouchers, 1)
@@ -113,12 +163,12 @@ func (s *DelegateCallVoucher) TestDelegateCallVoucherSafeTransfer() {
 	s.Equal(amount, unpacked[2].(*big.Int))
 }
 
-func (s *DelegateCallVoucher) TestDelegateCallVoucherSafeTransferTargeted() {
+func (s *ApplicationSuite) TestDelegateCallVoucherSafeERC20TransferTargeted() {
 	amount := big.NewInt(10000)
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	token := common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa")
 
-	safeTransferTargetedInput := []byte(fmt.Sprintf(`{"path":"safe_transfer_targeted","data":{"token":"%s","to":"%s","amount":"%s"}}`, token, to, amount))
+	safeTransferTargetedInput := []byte(fmt.Sprintf(`{"path":"safe_erc20_transfer_targeted","data":{"token":"%s","to":"%s","amount":"%s"}}`, token, to, amount))
 	safeTransferTargetedOutput := s.tester.Advance(to, safeTransferTargetedInput)
 	s.Nil(safeTransferTargetedOutput.Err)
 	s.Len(safeTransferTargetedOutput.DelegateCallVouchers, 1)
@@ -145,7 +195,7 @@ func (s *DelegateCallVoucher) TestDelegateCallVoucherSafeTransferTargeted() {
 	s.Equal(amount, unpacked[3].(*big.Int))
 }
 
-func (s *DelegateCallVoucher) TestDelegateCallVoucherEmergencyERC20Withdraw() {
+func (s *ApplicationSuite) TestDelegateCallVoucherEmergencyERC20Withdraw() {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	token := common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa")
 
@@ -172,7 +222,7 @@ func (s *DelegateCallVoucher) TestDelegateCallVoucherEmergencyERC20Withdraw() {
 	s.Equal(to, unpacked[1].(common.Address))
 }
 
-func (s *DelegateCallVoucher) TestDelegateCallVoucherEmergencyETHWithdraw() {
+func (s *ApplicationSuite) TestDelegateCallVoucherEmergencyETHWithdraw() {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
 
 	emergencyETHWithdrawInput := []byte(fmt.Sprintf(`{"path":"emergency_eth_withdraw","data":{"to":"%s"}}`, to))
@@ -196,7 +246,53 @@ func (s *DelegateCallVoucher) TestDelegateCallVoucherEmergencyETHWithdraw() {
 	s.Equal(to, unpacked[0].(common.Address))
 }
 
-func (s *DelegateCallVoucher) TestInspectContracts() {
+func (s *ApplicationSuite) TestInspectContracts() {
+	applicationAddress := common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
+
+	// Deploy
+	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"Token","symbol":"TKN"}}`)
+	newNFTOutput := s.tester.Advance(msgSender, deployNFTInput)
+	s.Len(newNFTOutput.Vouchers, 1)
+	s.Nil(newNFTOutput.Err)
+	s.Equal(nftFactoryAddress, newNFTOutput.Vouchers[0].Destination)
+
+	abiJson := `[{
+		"type": "function",
+		"name": "newNFT",
+		"inputs": [
+			{"type": "address"},
+			{"type": "bytes32"}
+		]
+	}]`
+	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
+	s.Require().NoError(err)
+
+	unpacked, err := abiInterface.Methods["newNFT"].Inputs.Unpack(newNFTOutput.Vouchers[0].Payload[4:])
+	s.Require().NoError(err)
+
+	s.Equal(applicationAddress, unpacked[0])
+	saltBytes := unpacked[1].([32]byte)
+	s.Equal(common.HexToHash(strconv.Itoa(0)), common.BytesToHash(saltBytes[:]))
+
+	// Inspect
+	bytecode, err := getNFTBytecode()
+	s.Require().NoError(err)
+
+	stringType, _ := abi.NewType("string", "", nil)
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, "Token", "TKN")
+	s.Require().NoError(err)
+
+	nftAddress := crypto.CreateAddress2(
+		nftFactoryAddress,
+		common.HexToHash(strconv.Itoa(0)),
+		crypto.Keccak256(append(bytecode, constructorArgs...)),
+	)
+
 	contractsInput := []byte(`{"path":"contracts"}`)
 	contractsOutput := s.tester.Inspect(contractsInput)
 	s.Nil(contractsOutput.Err)

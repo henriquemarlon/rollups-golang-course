@@ -17,26 +17,25 @@ import (
 
 var msgSender = common.HexToAddress("0xfafafafafafafafafafafafafafafafafafafafa")
 
-func TestMyApplicationSuite(t *testing.T) {
-	suite.Run(t, new(MyApplicationSuite))
+func TestApplicationSuite(t *testing.T) {
+	suite.Run(t, new(ApplicationSuite))
 }
 
-type MyApplicationSuite struct {
+type ApplicationSuite struct {
 	suite.Suite
 	tester *rollmelette.Tester
 }
 
-func (s *MyApplicationSuite) SetupTest() {
+func (s *ApplicationSuite) SetupTest() {
 	app := new(Application)
 	s.tester = rollmelette.NewTester(app)
 }
 
-func (s *MyApplicationSuite) TestVoucherDeployNFT() {
+func (s *ApplicationSuite) TestVoucherDeployNFT() {
 	applicationAddress := common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
 	bytecode, err := getNFTBytecode()
 	s.Require().NoError(err)
 
-	// calculate badge address
 	addressType, _ := abi.NewType("address", "", nil)
 	constructorArgs, err := abi.Arguments{
 		{Type: addressType},
@@ -52,12 +51,10 @@ func (s *MyApplicationSuite) TestVoucherDeployNFT() {
 		crypto.Keccak256(append(bytecode, constructorArgs...)),
 	)
 
-	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"MyToken","symbol":"MTK"}}`)
-
+	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"Token","symbol":"MTK"}}`)
 	newNFTOutput := s.tester.Advance(msgSender, deployNFTInput)
 	s.Len(newNFTOutput.Vouchers, 1)
 	s.Nil(newNFTOutput.Err)
-
 	s.Equal(nftFactoryAddress, newNFTOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
@@ -80,35 +77,16 @@ func (s *MyApplicationSuite) TestVoucherDeployNFT() {
 	s.Equal(common.HexToHash(strconv.Itoa(0)), common.BytesToHash(saltBytes[:]))
 }
 
-func (s *MyApplicationSuite) TestVoucherMintNFT() {
+func (s *ApplicationSuite) TestVoucherMintNFT() {
 	uri := "https://example.com/nft/1"
 	user := common.HexToAddress("0x0000000000000000000000000000000000000001")
 	applicationAddress := common.HexToAddress("0xab7528bb862fb57e8a2bcd567a2e929a0be56a5e")
-	bytecode, err := getNFTBytecode()
-	s.Require().NoError(err)
 
-	// calculate badge address
-	stringType, _ := abi.NewType("string", "", nil)
-	addressType, _ := abi.NewType("address", "", nil)
-	constructorArgs, err := abi.Arguments{
-		{Type: addressType},
-		{Type: stringType},
-		{Type: stringType},
-	}.Pack(applicationAddress, "MyToken", "MTK")
-	s.Require().NoError(err)
-
-	nftAddress := crypto.CreateAddress2(
-		nftFactoryAddress,
-		common.HexToHash(strconv.Itoa(0)),
-		crypto.Keccak256(append(bytecode, constructorArgs...)),
-	)
-
-	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"MyToken","symbol":"MTK"}}`)
-
+	// Deploy
+	deployNFTInput := []byte(`{"path":"deploy_nft","data":{"name":"Token","symbol":"TKN"}}`)
 	newNFTOutput := s.tester.Advance(msgSender, deployNFTInput)
 	s.Len(newNFTOutput.Vouchers, 1)
 	s.Nil(newNFTOutput.Err)
-
 	s.Equal(nftFactoryAddress, newNFTOutput.Vouchers[0].Destination)
 
 	abiJson := `[{
@@ -119,7 +97,6 @@ func (s *MyApplicationSuite) TestVoucherMintNFT() {
 			{"type": "bytes32"}
 		]
 	}]`
-
 	abiInterface, err := abi.JSON(strings.NewReader(abiJson))
 	s.Require().NoError(err)
 
@@ -130,8 +107,28 @@ func (s *MyApplicationSuite) TestVoucherMintNFT() {
 	saltBytes := unpacked[1].([32]byte)
 	s.Equal(common.HexToHash(strconv.Itoa(0)), common.BytesToHash(saltBytes[:]))
 
+	// Mint
+	bytecode, err := getNFTBytecode()
+	s.Require().NoError(err)
+
+	stringType, _ := abi.NewType("string", "", nil)
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(applicationAddress, "Token", "TKN")
+	s.Require().NoError(err)
+
+	nftAddress := crypto.CreateAddress2(
+		nftFactoryAddress,
+		common.HexToHash(strconv.Itoa(0)),
+		crypto.Keccak256(append(bytecode, constructorArgs...)),
+	)
+
 	mintNFTInput := []byte(fmt.Sprintf(`{"path":"mint_nft","data":{"to":"%s","uri":"%s"}}`, user.Hex(), uri))
 	mintNFTOutput := s.tester.Advance(msgSender, mintNFTInput)
+	s.Require().NoError(err)
 	s.Len(mintNFTOutput.Vouchers, 1)
 	s.Equal(nftAddress, mintNFTOutput.Vouchers[0].Destination)
 
@@ -148,7 +145,6 @@ func (s *MyApplicationSuite) TestVoucherMintNFT() {
 
 	unpacked, err = abiInterface.Methods["safeMint"].Inputs.Unpack(mintNFTOutput.Vouchers[0].Payload[4:])
 	s.Require().NoError(err)
-
-	s.Equal(user, unpacked[0])
-	s.Equal(uri, unpacked[1])
+	s.Equal(user, unpacked[0].(common.Address))
+	s.Equal(uri, unpacked[1].(string))
 }
