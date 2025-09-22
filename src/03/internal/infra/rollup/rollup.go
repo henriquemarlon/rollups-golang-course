@@ -25,8 +25,8 @@ func Create(c *CreateInfo) *router.Router {
 	r.Use(router.LoggingMiddleware)
 	r.Use(router.ErrorHandlingMiddleware)
 
-	votingGroup := r.Group("voting")
 	{
+		votingGroup := r.Group("voting")
 		votingGroup.HandleAdvance("create", votingAdvanceHandlers.CreateVoting)
 		votingGroup.HandleAdvance("delete", votingAdvanceHandlers.DeleteVoting)
 		votingGroup.HandleAdvance("vote", votingAdvanceHandlers.Vote)
@@ -37,9 +37,9 @@ func Create(c *CreateInfo) *router.Router {
 		votingGroup.HandleInspect("active", votingInspectHandlers.FindAllActiveVotings)
 		votingGroup.HandleInspect("results", votingInspectHandlers.GetResults)
 	}
-
-	voterGroup := r.Group("voter")
+	
 	{
+		voterGroup := r.Group("voter")
 		voterGroup.HandleAdvance("create", voterAdvanceHandlers.CreateVoter)
 		voterGroup.HandleAdvance("delete", voterAdvanceHandlers.DeleteVoter)
 
@@ -47,8 +47,8 @@ func Create(c *CreateInfo) *router.Router {
 		voterGroup.HandleInspect("address", voterInspectHandlers.FindVoterByAddress)
 	}
 
-	votingOptionGroup := r.Group("voting-option")
 	{
+		votingOptionGroup := r.Group("voting-option")
 		votingOptionGroup.HandleAdvance("create", votingOptionAdvanceHandlers.CreateVotingOption)
 		votingOptionGroup.HandleAdvance("delete", votingOptionAdvanceHandlers.DeleteVotingOption)
 
