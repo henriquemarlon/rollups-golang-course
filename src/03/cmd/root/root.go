@@ -6,8 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/repository/factory"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/rollup"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/repository/factory"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/rollup"
 	"github.com/rollmelette/rollmelette"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +37,7 @@ func run(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 	slog.Info("Database initialized")
-	
+
 	defer repo.Close()
 
 	createInfo := &rollup.CreateInfo{

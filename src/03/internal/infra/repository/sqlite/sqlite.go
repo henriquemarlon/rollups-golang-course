@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/domain"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/domain"
 )
 
 type SQLiteRepository struct {

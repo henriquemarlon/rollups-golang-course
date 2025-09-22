@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/domain"
-	. "github.com/henriquemarlon/cartesi-golang-series/high-level-framework/pkg/custom_type"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/domain"
+	. "github.com/henriquemarlon/cartesi-golang-series/src/03/pkg/custom_type"
 )
 
 type VotingRepository interface {

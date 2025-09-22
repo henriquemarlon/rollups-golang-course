@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository"
+import "github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository"
 
 type FindToDoOutputDTO struct {
 	Id          uint   `json:"id"`

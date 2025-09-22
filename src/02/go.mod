@@ -1,4 +1,4 @@
-module github.com/henriquemarlon/cartesi-golang-series/to-do
+module github.com/henriquemarlon/cartesi-golang-series/src/02
 
 go 1.23.0
 

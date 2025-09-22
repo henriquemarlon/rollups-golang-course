@@ -7,7 +7,7 @@ import (
 
 var (
 	ErrInvalidToDo = errors.New("invalid to_do")
-	ErrNotFound    = errors.New("to-do not found")
+	ErrNotFound    = errors.New("src/02 not found")
 )
 
 type ToDo struct {

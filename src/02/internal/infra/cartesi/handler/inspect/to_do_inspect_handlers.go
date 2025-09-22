@@ -3,9 +3,9 @@ package inspect
 import (
 	"encoding/json"
 
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/usecase"
-	rollups "github.com/henriquemarlon/cartesi-golang-series/to-do/pkg/rollups"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/usecase"
+	rollups "github.com/henriquemarlon/cartesi-golang-series/src/02/pkg/rollups"
 )
 
 type ToDoInspectHandlers struct {

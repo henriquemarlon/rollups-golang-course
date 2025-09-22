@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/henriquemarlon/cartesi-golang-series/high-level-framework/pkg/custom_type"
+	. "github.com/henriquemarlon/cartesi-golang-series/src/03/pkg/custom_type"
 )
 
 var (

@@ -1,9 +1,9 @@
 package usecase
 
 import (
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/domain"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/pkg/rollups"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/domain"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/pkg/rollups"
 )
 
 type CreateToDoInputDTO struct {

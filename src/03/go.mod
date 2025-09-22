@@ -1,4 +1,4 @@
-module github.com/henriquemarlon/cartesi-golang-series/high-level-framework
+module github.com/henriquemarlon/cartesi-golang-series/src/03
 
 go 1.23.0
 

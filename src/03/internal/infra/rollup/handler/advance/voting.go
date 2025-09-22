@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/repository"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/usecase/voting"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/usecase/voting"
 	"github.com/rollmelette/rollmelette"
 )
 

@@ -293,11 +293,11 @@ func (s *ApplicationSuite) TestInspectContracts() {
 		crypto.Keccak256(append(bytecode, constructorArgs...)),
 	)
 
-	contractsInput := []byte(`{"path":"contracts"}`)
-	contractsOutput := s.tester.Inspect(contractsInput)
-	s.Nil(contractsOutput.Err)
-	s.Len(contractsOutput.Reports, 1)
+	inspectInput := []byte(`{"path":"contracts"}`)
+	inspectOutput := s.tester.Inspect(inspectInput)
+	s.Nil(inspectOutput.Err)
+	s.Len(inspectOutput.Reports, 1)
 
-	expectedContractsOutput := fmt.Sprintf(`[{"name":"NFT","address":"%s"},{"name":"NFTFactory","address":"%s"},{"name":"EmergencyWithdraw","address":"%s"},{"name":"SafeERC20Transfer","address":"%s"}]`, nftAddress, nftFactoryAddress, emergencyWithdrawAddress, safeERC20TransferAddress)
-	s.Equal(string(contractsOutput.Reports[0].Payload), expectedContractsOutput)
+	expectedContractsOutput := fmt.Sprintf(`[{"name":"Non Fungible Token","address":"%s"},{"name":"NFT Factory","address":"%s"},{"name":"Emergency Withdraw","address":"%s"},{"name":"Safe ERC20 Transfer","address":"%s"}]`, nftAddress, nftFactoryAddress, emergencyWithdrawAddress, safeERC20TransferAddress)
+	s.Equal(expectedContractsOutput, string(inspectOutput.Reports[0].Payload))
 }

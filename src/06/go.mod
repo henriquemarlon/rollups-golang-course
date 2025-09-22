@@ -1,4 +1,4 @@
-module github.com/henriquemarlon/cartesi-golang-series/delegate-call-voucher
+module github.com/henriquemarlon/cartesi-golang-series/src/06
 
 go 1.23.0
 

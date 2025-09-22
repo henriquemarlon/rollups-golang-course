@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	. "github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository/in_memory"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository/sqlite"
+	. "github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository/in_memory"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository/sqlite"
 )
 
 func NewRepositoryFromConnectionString(ctx context.Context, conn string) (Repository, error) {

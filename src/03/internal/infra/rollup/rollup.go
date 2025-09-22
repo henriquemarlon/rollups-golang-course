@@ -1,10 +1,10 @@
 package rollup
 
 import (
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/rollup/handler/advance"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/rollup/handler/inspect"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/repository"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/pkg/router"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/rollup/handler/advance"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/rollup/handler/inspect"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/pkg/router"
 )
 
 type CreateInfo struct {

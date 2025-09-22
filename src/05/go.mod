@@ -1,4 +1,4 @@
-module github.com/henriquemarlon/cartesi-golang-series/interacting-with-the-base-layer
+module github.com/henriquemarlon/cartesi-golang-series/src/05
 
 go 1.23.0
 

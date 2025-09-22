@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/usecase"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/pkg/rollups"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/usecase"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/pkg/rollups"
 )
 
 type ToDoAdvanceHandlers struct {
@@ -41,7 +41,7 @@ func (h *ToDoAdvanceHandlers) CreateToDoHandler(payload []byte, metadata rollups
 		return err
 	}
 	rollups.SendNotice(&rollups.NoticeRequest{
-		Payload: rollups.Str2Hex(fmt.Sprintf("To-Do created - %s", toDo)),
+		Payload: rollups.Str2Hex(fmt.Sprintf("src/02 created - %s", toDo)),
 	})
 	return nil
 }
@@ -67,7 +67,7 @@ func (h *ToDoAdvanceHandlers) UpdateToDoHandler(payload []byte, metadata rollups
 		return err
 	}
 	rollups.SendNotice(&rollups.NoticeRequest{
-		Payload: rollups.Str2Hex(fmt.Sprintf("To-Do updated - %s", toDo)),
+		Payload: rollups.Str2Hex(fmt.Sprintf("src/02 updated - %s", toDo)),
 	})
 	return nil
 }
@@ -82,7 +82,7 @@ func (h *ToDoAdvanceHandlers) DeleteToDoHandler(payload []byte, metadata rollups
 	if err := validator.Struct(input); err != nil {
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
-	
+
 	deleteToDo := usecase.NewDeleteToDoUseCase(h.ToDoRepository)
 	err := deleteToDo.Execute(&input)
 	if err != nil {
@@ -93,7 +93,7 @@ func (h *ToDoAdvanceHandlers) DeleteToDoHandler(payload []byte, metadata rollups
 		return err
 	}
 	rollups.SendNotice(&rollups.NoticeRequest{
-		Payload: rollups.Str2Hex(fmt.Sprintf("To-Do deleted - %s", toDo)),
+		Payload: rollups.Str2Hex(fmt.Sprintf("src/02 deleted - %s", toDo)),
 	})
 	return nil
 }

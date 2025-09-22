@@ -18,6 +18,7 @@ import (
 )
 
 var (
+	nftAddress common.Address
 	// NOTE: all addresses were computed from the salt "1596"
 	nftFactoryAddress        = common.HexToAddress("0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0")
 	safeERC721MintAddress    = common.HexToAddress("0x4F85347240488E62ab1C6169Cbc532A09223efa4")
@@ -25,9 +26,7 @@ var (
 	emergencyWithdrawAddress = common.HexToAddress("0xA716b0bE3a59b05A307b98c6bAf9d21dF796F37d")
 )
 
-type Application struct {
-	NftAddress common.Address
-}
+type Application struct{}
 
 func (a *Application) Advance(
 	env rollmelette.Env,
@@ -76,7 +75,7 @@ func (a *Application) Advance(
 		if err != nil {
 			return fmt.Errorf("error encoding constructor args: %w", err)
 		}
-		a.NftAddress = crypto.CreateAddress2(
+		nftAddress = crypto.CreateAddress2(
 			nftFactoryAddress,
 			common.HexToHash(strconv.Itoa(metadata.Index)),
 			crypto.Keccak256(append(bytecode, constructorArgs...)),
@@ -104,7 +103,7 @@ func (a *Application) Advance(
 		if err := validator.Struct(data); err != nil {
 			return fmt.Errorf("failed to validate input: %w", err)
 		}
-		mintNFTPayload, err := buildMintNFTDelegateCallVoucherPayload(a.NftAddress, data.To, data.URI)
+		mintNFTPayload, err := buildMintNFTDelegateCallVoucherPayload(nftAddress, data.To, data.URI)
 		if err != nil {
 			return err
 		}
@@ -286,20 +285,22 @@ func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) erro
 	if err := validator.Struct(input); err != nil {
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
+
 	switch input.Path {
 	case "contracts":
 		contractsJson := fmt.Sprintf(
-			`[{"name":"NFT","address":"%s"},{"name":"NFTFactory","address":"%s"},{"name":"EmergencyWithdraw","address":"%s"},{"name":"SafeERC20Transfer","address":"%s"}]`,
-			a.NftAddress,
+			`[{"name":"Non Fungible Token","address":"%s"},{"name":"NFT Factory","address":"%s"},{"name":"Emergency Withdraw","address":"%s"},{"name":"Safe ERC20 Transfer","address":"%s"}]`,
+			nftAddress,
 			nftFactoryAddress,
 			emergencyWithdrawAddress,
 			safeERC20TransferAddress,
 		)
 		env.Report([]byte(contractsJson))
 		return nil
+
 	case "erc20_balance":
 		var data struct {
-			Token common.Address `json:"token" validate:"required"`
+			Token   common.Address `json:"token" validate:"required"`
 			Address common.Address `json:"address" validate:"required"`
 		}
 		if err := json.Unmarshal(input.Data, &data); err != nil {
@@ -310,6 +311,7 @@ func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) erro
 		}
 		env.Report([]byte(fmt.Sprintf("ERC20 balance of %s: %d", data.Token, env.ERC20BalanceOf(data.Token, data.Address))))
 		return nil
+
 	case "ether_balance":
 		var data struct {
 			Address common.Address `json:"address" validate:"required"`
@@ -319,6 +321,7 @@ func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) erro
 		}
 		env.Report([]byte(fmt.Sprintf("Ether balance of %s: %d", data.Address, env.EtherBalanceOf(data.Address))))
 		return nil
+
 	default:
 		env.Report([]byte(fmt.Sprintf("Unknown path: %s", input.Path)))
 		return fmt.Errorf("unknown path: %s", input.Path)

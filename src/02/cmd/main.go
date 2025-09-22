@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/cartesi/handler/advance"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/cartesi/handler/inspect"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/internal/infra/repository/factory"
-	"github.com/henriquemarlon/cartesi-golang-series/to-do/pkg/rollups"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/cartesi/handler/advance"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/cartesi/handler/inspect"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/internal/infra/repository/factory"
+	"github.com/henriquemarlon/cartesi-golang-series/src/02/pkg/rollups"
 )
 
 var (
@@ -43,7 +43,7 @@ func DappStrategy(response *rollups.FinishResponse, router *rollups.Router, ih *
 func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	// toDoRepository, err := factory.NewRepositoryFromConnectionString(ctx, "memory://")
 	// if err != nil {
 	// 	errlog.Panicln("Failed to initialize repository", "error", err)
@@ -68,7 +68,7 @@ func main() {
 		errlog.Panicln("Failed to initialize inspect handlers", "error", err)
 	}
 	infolog.Println("Inspect handlers initialized")
-	
+
 	r := rollups.NewRouter()
 	r.HandleAdvance("createToDo", ah.CreateToDoHandler)
 	r.HandleAdvance("updateToDo", ah.UpdateToDoHandler)

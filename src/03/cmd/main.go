@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/cmd/root"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/cmd/root"
 )
 
 func main() {

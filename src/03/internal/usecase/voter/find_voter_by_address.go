@@ -3,8 +3,8 @@ package voter
 import (
 	"context"
 
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/repository"
-	. "github.com/henriquemarlon/cartesi-golang-series/high-level-framework/pkg/custom_type"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/repository"
+	. "github.com/henriquemarlon/cartesi-golang-series/src/03/pkg/custom_type"
 )
 
 type FindVoterByAddressInputDTO struct {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/domain"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/repository"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/domain"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/repository"
 )
 
 type UpdateVotingStatusUseCase struct {

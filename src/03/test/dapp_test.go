@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/repository/factory"
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/infra/rollup"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/repository/factory"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/infra/rollup"
 	"github.com/rollmelette/rollmelette"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,13 +26,13 @@ type VotingSystemSuite struct {
 
 func (s *VotingSystemSuite) SetupTest() {
 	ctx := context.Background()
-	
+
 	repo, err := factory.NewRepositoryFromConnectionString(ctx, "sqlite://:memory:")
 	if err != nil {
 		slog.Error("Failed to setup in-memory SQLite database", "error", err)
 		os.Exit(1)
 	}
-	
+
 	createInfo := &rollup.CreateInfo{
 		Repo: repo,
 	}

@@ -1,7 +1,7 @@
 package sqlite
 
 import (
-	"github.com/henriquemarlon/cartesi-golang-series/high-level-framework/internal/domain"
+	"github.com/henriquemarlon/cartesi-golang-series/src/03/internal/domain"
 )
 
 func (r *SQLiteRepository) CreateVoting(voting *domain.Voting) error {

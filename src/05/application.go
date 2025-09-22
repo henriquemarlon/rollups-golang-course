@@ -17,12 +17,11 @@ import (
 )
 
 var (
+	nftAddress        common.Address
 	nftFactoryAddress = common.HexToAddress("0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0") // NOTE: this address is computed from the salt "1596"
 )
 
-type Application struct {
-	NftAddress common.Address
-}
+type Application struct{}
 
 func (a *Application) Advance(
 	env rollmelette.Env,
@@ -52,28 +51,11 @@ func (a *Application) Advance(
 		if err := json.Unmarshal(input.Data, &data); err != nil {
 			return err
 		}
-		bytecode, err := getNFTBytecode()
-		if err != nil {
-			return err
-		}
-		stringType, _ := abi.NewType("string", "", nil)
-		addressType, _ := abi.NewType("address", "", nil)
-		constructorArgs, err := abi.Arguments{
-			{Type: addressType},
-			{Type: stringType},
-			{Type: stringType},
-		}.Pack(metadata.AppContract, data.Name, data.Symbol)
-		if err != nil {
-			return fmt.Errorf("error encoding constructor args: %w", err)
-		}
-		a.NftAddress = crypto.CreateAddress2(
-			nftFactoryAddress,
-			common.HexToHash(strconv.Itoa(metadata.Index)),
-			crypto.Keccak256(append(bytecode, constructorArgs...)),
-		)
-		deployNFTPayload, err := deployNFT(
+		deployNFTPayload, err := buildDeployNFTVoucherPayload(
 			metadata.AppContract,
 			common.HexToHash(strconv.Itoa(metadata.Index)),
+			data.Name,
+			data.Symbol,
 		)
 		if err != nil {
 			return err
@@ -92,11 +74,11 @@ func (a *Application) Advance(
 		if err := validator.Struct(data); err != nil {
 			return fmt.Errorf("failed to validate input: %w", err)
 		}
-		voucher, err := mintNFT(data.To, data.URI)
+		voucher, err := buildMintNFTVoucherPayload(data.To, data.URI)
 		if err != nil {
 			return err
 		}
-		env.Voucher(a.NftAddress, big.NewInt(0), voucher)
+		env.Voucher(nftAddress, big.NewInt(0), voucher)
 		return nil
 
 	default:
@@ -107,8 +89,7 @@ func (a *Application) Advance(
 
 func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) error {
 	var data struct {
-		Path string          `json:"path" validate:"required"`
-		Data json.RawMessage `json:"data"`
+		Path string `json:"path" validate:"required"`
 	}
 	if err := json.Unmarshal(payload, &data); err != nil {
 		return err
@@ -117,11 +98,12 @@ func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) erro
 	if err := validator.Struct(data); err != nil {
 		return fmt.Errorf("failed to validate input: %w", err)
 	}
+
 	switch data.Path {
 	case "contracts":
 		contractsJson := fmt.Sprintf(
-			`[{"name":"NFT","address":"%s"},{"name":"NFTFactory","address":"%s"}]`,
-			a.NftAddress,
+			`[{"name":"Non Fungible Token","address":"%s"},{"name":"NFT Factory","address":"%s"}]`,
+			nftAddress,
 			nftFactoryAddress,
 		)
 		env.Report([]byte(contractsJson))
@@ -133,13 +115,35 @@ func (a *Application) Inspect(env rollmelette.EnvInspector, payload []byte) erro
 	}
 }
 
-func deployNFT(initialOwner common.Address, salt common.Hash) ([]byte, error) {
+func buildDeployNFTVoucherPayload(initialOwner common.Address, salt common.Hash, name string, symbol string) ([]byte, error) {
+	bytecode, err := getNFTBytecode()
+	if err != nil {
+		return nil, err
+	}
+	stringType, _ := abi.NewType("string", "", nil)
+	addressType, _ := abi.NewType("address", "", nil)
+	constructorArgs, err := abi.Arguments{
+		{Type: addressType},
+		{Type: stringType},
+		{Type: stringType},
+	}.Pack(initialOwner, name, symbol)
+	if err != nil {
+		return nil, fmt.Errorf("error encoding constructor args: %w", err)
+	}
+	nftAddress = crypto.CreateAddress2(
+		nftFactoryAddress,
+		salt,
+		crypto.Keccak256(append(bytecode, constructorArgs...)),
+	)
+
 	abiJSON := `[{
 		"type":"function",
 		"name":"newNFT",
 		"inputs":[
 			{"type":"address"},
-			{"type":"bytes32"}
+			{"type":"bytes32"},
+			{"type":"string"},
+			{"type":"string"}
 		]
 	}]`
 	abiInterface, err := abi.JSON(strings.NewReader(abiJSON))
@@ -147,14 +151,20 @@ func deployNFT(initialOwner common.Address, salt common.Hash) ([]byte, error) {
 		return nil, fmt.Errorf("failed to parse ABI: %w", err)
 	}
 
-	voucher, err := abiInterface.Pack("newNFT", initialOwner, salt)
+	voucher, err := abiInterface.Pack(
+		"newNFT",
+		initialOwner,
+		salt,
+		name,
+		symbol,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pack ABI: %w", err)
 	}
 	return voucher, nil
 }
 
-func mintNFT(to common.Address, uri string) ([]byte, error) {
+func buildMintNFTVoucherPayload(to common.Address, uri string) ([]byte, error) {
 	abiJSON := `[{
 		"type":"function",
 		"name":"safeMint",
