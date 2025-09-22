@@ -8,7 +8,10 @@ contract NFTFactory {
     event NFTDeployed(address indexed nft, bytes32 salt);
     event NFTAlreadyDeployed(address indexed nft, bytes32 salt);
 
-    function newNFT(address initialOwner, bytes32 salt, string memory name, string memory symbol) external returns (NFT) {
+    function newNFT(address initialOwner, bytes32 salt, string memory name, string memory symbol)
+        external
+        returns (NFT)
+    {
         address predicted = _computeAddress(initialOwner, salt, name, symbol);
 
         if (predicted.code.length > 0) {
@@ -22,7 +25,11 @@ contract NFTFactory {
         return nft;
     }
 
-    function _computeAddress(address initialOwner, bytes32 salt, string memory name, string memory symbol) private view returns (address) {
+    function _computeAddress(address initialOwner, bytes32 salt, string memory name, string memory symbol)
+        private
+        view
+        returns (address)
+    {
         return address(
             uint160(
                 uint256(

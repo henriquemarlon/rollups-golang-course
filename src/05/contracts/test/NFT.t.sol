@@ -31,8 +31,24 @@ contract NFTTest is Test {
         bytes memory encodedDeployTx = abi.encodeCall(NFTFactory.newNFT, (address(mockApplication), salt, name, symbol));
         bytes memory voucher = abi.encodeCall(Outputs.Voucher, (address(nftFactory), 0, encodedDeployTx));
 
-        address predictedAddress = nftFactory.computeAddress(address(mockApplication), salt, name, symbol);
-
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(nftFactory),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(NFT).creationCode, abi.encode(address(mockApplication), name, symbol)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
         vm.expectEmit(true, true, false, true);
         emit NFTDeployed(predictedAddress, salt);
         mockApplication.executeOutput(voucher);
@@ -49,8 +65,24 @@ contract NFTTest is Test {
         bytes memory encodedDeployTx = abi.encodeCall(NFTFactory.newNFT, (address(mockApplication), salt, name, symbol));
         bytes memory voucher = abi.encodeCall(Outputs.Voucher, (address(nftFactory), 0, encodedDeployTx));
 
-        address predictedAddress = nftFactory.computeAddress(address(mockApplication), salt, name, symbol);
-
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(this),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(NFT).creationCode, abi.encode(address(mockApplication), name, symbol)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
         vm.expectEmit(true, true, false, true);
         emit NFTDeployed(predictedAddress, salt);
         mockApplication.executeOutput(voucher);

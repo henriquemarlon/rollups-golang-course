@@ -11,21 +11,21 @@ contract Deploy is Script {
     SafeERC721Mint public safeERC721Mint;
     EmergencyWithdraw public emergencyWithdraw;
     SafeERC20Transfer public safeERC20Transfer;
-    
+
     Token public token;
-    
+
     NFTFactory public nftFactory;
 
     function run() public returns (SafeERC721Mint, EmergencyWithdraw, SafeERC20Transfer, Token, NFTFactory) {
         vm.startBroadcast();
-        
+
         safeERC721Mint = new SafeERC721Mint{salt: keccak256("1596")}();
         emergencyWithdraw = new EmergencyWithdraw{salt: keccak256("1596")}();
         safeERC20Transfer = new SafeERC20Transfer{salt: keccak256("1596")}();
         nftFactory = new NFTFactory{salt: keccak256("1596")}();
-        
+
         token = new Token();
-        
+
         vm.stopBroadcast();
 
         _saveDeploymentInfo();

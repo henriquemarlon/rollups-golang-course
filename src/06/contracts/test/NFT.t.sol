@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {Test} from "forge-std-1.9.7/src/Test.sol";
 import {NFT} from "../src/token/ERC721/NFT.sol";
+import {Test} from "forge-std-1.9.7/src/Test.sol";
 import {MockApplication} from "./mock/MockApplication.sol";
 import {NFTFactory} from "../src/token/ERC721/NFTFactory.sol";
 import {Outputs} from "cartesi-rollups-contracts-2.0.0/src/common/Outputs.sol";
@@ -34,7 +34,24 @@ contract NFTTest is Test {
         bytes memory encodedDeployTx = abi.encodeCall(NFTFactory.newNFT, (address(mockApplication), salt, name, symbol));
         bytes memory voucher = abi.encodeCall(Outputs.Voucher, (address(nftFactory), 0, encodedDeployTx));
 
-        address predictedAddress = nftFactory.computeAddress(address(mockApplication), salt, name, symbol);
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(nftFactory),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(NFT).creationCode, abi.encode(address(mockApplication), name, symbol)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
 
         vm.expectEmit(true, true, false, true);
         emit NFTDeployed(predictedAddress, salt);
@@ -52,8 +69,24 @@ contract NFTTest is Test {
         bytes memory encodedDeployTx = abi.encodeCall(NFTFactory.newNFT, (address(mockApplication), salt, name, symbol));
         bytes memory voucher = abi.encodeCall(Outputs.Voucher, (address(nftFactory), 0, encodedDeployTx));
 
-        address predictedAddress = nftFactory.computeAddress(address(mockApplication), salt, name, symbol);
-
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(nftFactory),
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(NFT).creationCode, abi.encode(address(mockApplication), name, symbol)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
         vm.expectEmit(true, true, false, true);
         emit NFTDeployed(predictedAddress, salt);
         mockApplication.executeOutput(voucher);

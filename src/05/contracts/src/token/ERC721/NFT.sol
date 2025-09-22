@@ -11,7 +11,10 @@ import {ERC721URIStorage} from "@openzeppelin-contracts-5.2.0/token/ERC721/exten
 contract NFT is ERC721, ERC721URIStorage, ERC721Pausable, ERC721Burnable, Ownable {
     uint256 private _nextTokenId;
 
-    constructor(address initialOwner, string memory name, string memory symbol) ERC721(name, symbol) Ownable(initialOwner) {}
+    constructor(address initialOwner, string memory name, string memory symbol)
+        ERC721(name, symbol)
+        Ownable(initialOwner)
+    {}
 
     function pause() public {
         _pause();

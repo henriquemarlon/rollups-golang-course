@@ -4,7 +4,7 @@ all: help
 .PHONY: test
 test: ## Run the application unit tests
 	@go test -v ./...
-	@forge test --root ./contracts
+	@forge test --root ./contracts -vvv
 
 .PHONY: build
 build: ## Build the application RISC-V image with cartesi cli

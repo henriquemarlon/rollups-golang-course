@@ -34,14 +34,10 @@ contract SafeERC20TransferTest is Test {
         uint256 initialBalance = token.balanceOf(address(mockApplication));
         uint256 recipientInitialBalance = token.balanceOf(recipient);
 
-        bytes memory encodedTransferTx = abi.encodeCall(
-            SafeERC20Transfer.safeTransfer, 
-            (token, recipient, transferAmount)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(safeERC20Transfer), encodedTransferTx)
-        );
+        bytes memory encodedTransferTx =
+            abi.encodeCall(SafeERC20Transfer.safeTransfer, (token, recipient, transferAmount));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC20Transfer), encodedTransferTx));
 
         vm.expectEmit(true, true, false, true);
         emit Transfer(address(mockApplication), recipient, transferAmount);
@@ -56,14 +52,10 @@ contract SafeERC20TransferTest is Test {
         uint256 initialBalance = token.balanceOf(address(mockApplication));
         uint256 recipientInitialBalance = token.balanceOf(recipient);
 
-        bytes memory encodedTransferTx = abi.encodeCall(
-            SafeERC20Transfer.safeTransferTargeted, 
-            (token, recipient, recipient, transferAmount)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(safeERC20Transfer), encodedTransferTx)
-        );
+        bytes memory encodedTransferTx =
+            abi.encodeCall(SafeERC20Transfer.safeTransferTargeted, (token, recipient, recipient, transferAmount));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC20Transfer), encodedTransferTx));
 
         vm.prank(recipient);
         vm.expectEmit(true, true, false, true);
@@ -77,14 +69,10 @@ contract SafeERC20TransferTest is Test {
     function test_SafeTransferTargetedWithWrongTarget() public {
         uint256 transferAmount = 100e18;
 
-        bytes memory encodedTransferTx = abi.encodeCall(
-            SafeERC20Transfer.safeTransferTargeted, 
-            (token, user, recipient, transferAmount)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(safeERC20Transfer), encodedTransferTx)
-        );
+        bytes memory encodedTransferTx =
+            abi.encodeCall(SafeERC20Transfer.safeTransferTargeted, (token, user, recipient, transferAmount));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC20Transfer), encodedTransferTx));
 
         vm.expectRevert(abi.encodeWithSelector(SafeERC20Transfer.NotTarget.selector, user));
         mockApplication.executeOutput(delegateCallVoucher);
@@ -93,14 +81,10 @@ contract SafeERC20TransferTest is Test {
     function test_SafeTransferWithInsufficientBalance() public {
         uint256 transferAmount = 2000e18;
 
-        bytes memory encodedTransferTx = abi.encodeCall(
-            SafeERC20Transfer.safeTransfer, 
-            (token, recipient, transferAmount)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(safeERC20Transfer), encodedTransferTx)
-        );
+        bytes memory encodedTransferTx =
+            abi.encodeCall(SafeERC20Transfer.safeTransfer, (token, recipient, transferAmount));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC20Transfer), encodedTransferTx));
 
         vm.expectRevert();
         mockApplication.executeOutput(delegateCallVoucher);
@@ -109,14 +93,10 @@ contract SafeERC20TransferTest is Test {
     function test_SafeTransferToZeroAddress() public {
         uint256 transferAmount = 100e18;
 
-        bytes memory encodedTransferTx = abi.encodeCall(
-            SafeERC20Transfer.safeTransfer, 
-            (token, address(0), transferAmount)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(safeERC20Transfer), encodedTransferTx)
-        );
+        bytes memory encodedTransferTx =
+            abi.encodeCall(SafeERC20Transfer.safeTransfer, (token, address(0), transferAmount));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC20Transfer), encodedTransferTx));
 
         vm.expectRevert();
         mockApplication.executeOutput(delegateCallVoucher);
@@ -126,14 +106,10 @@ contract SafeERC20TransferTest is Test {
         uint256 exactBalance = token.balanceOf(address(mockApplication));
         uint256 recipientInitialBalance = token.balanceOf(recipient);
 
-        bytes memory encodedTransferTx = abi.encodeCall(
-            SafeERC20Transfer.safeTransfer, 
-            (token, recipient, exactBalance)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(safeERC20Transfer), encodedTransferTx)
-        );
+        bytes memory encodedTransferTx =
+            abi.encodeCall(SafeERC20Transfer.safeTransfer, (token, recipient, exactBalance));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(safeERC20Transfer), encodedTransferTx));
 
         vm.expectEmit(true, true, false, true);
         emit Transfer(address(mockApplication), recipient, exactBalance);

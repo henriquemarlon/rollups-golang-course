@@ -34,14 +34,9 @@ contract EmergencyWithdrawTest is Test {
         uint256 initialBalance = token.balanceOf(address(mockApplication));
         uint256 recipientInitialBalance = token.balanceOf(recipient);
 
-        bytes memory encodedWithdrawTx = abi.encodeCall(
-            EmergencyWithdraw.emergencyERC20Withdraw, 
-            (token, recipient)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(emergencyWithdraw), encodedWithdrawTx)
-        );
+        bytes memory encodedWithdrawTx = abi.encodeCall(EmergencyWithdraw.emergencyERC20Withdraw, (token, recipient));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(emergencyWithdraw), encodedWithdrawTx));
 
         vm.expectEmit(true, true, false, true);
         emit Transfer(address(mockApplication), recipient, initialBalance);
@@ -55,14 +50,9 @@ contract EmergencyWithdrawTest is Test {
         uint256 initialBalance = address(mockApplication).balance;
         uint256 recipientInitialBalance = recipient.balance;
 
-        bytes memory encodedWithdrawTx = abi.encodeCall(
-            EmergencyWithdraw.emergencyETHWithdraw, 
-            (recipient)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(emergencyWithdraw), encodedWithdrawTx)
-        );
+        bytes memory encodedWithdrawTx = abi.encodeCall(EmergencyWithdraw.emergencyETHWithdraw, (recipient));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(emergencyWithdraw), encodedWithdrawTx));
 
         mockApplication.executeOutput(delegateCallVoucher);
 
@@ -71,14 +61,9 @@ contract EmergencyWithdrawTest is Test {
     }
 
     function test_EmergencyERC20WithdrawWithZeroBalance() public {
-        bytes memory encodedWithdrawTx = abi.encodeCall(
-            EmergencyWithdraw.emergencyERC20Withdraw, 
-            (token, recipient)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(emergencyWithdraw), encodedWithdrawTx)
-        );
+        bytes memory encodedWithdrawTx = abi.encodeCall(EmergencyWithdraw.emergencyERC20Withdraw, (token, recipient));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(emergencyWithdraw), encodedWithdrawTx));
         mockApplication.executeOutput(delegateCallVoucher);
 
         mockApplication.executeOutput(delegateCallVoucher);
@@ -88,14 +73,9 @@ contract EmergencyWithdrawTest is Test {
     }
 
     function test_EmergencyETHWithdrawWithZeroBalance() public {
-        bytes memory encodedWithdrawTx = abi.encodeCall(
-            EmergencyWithdraw.emergencyETHWithdraw, 
-            (recipient)
-        );
-        bytes memory delegateCallVoucher = abi.encodeCall(
-            Outputs.DelegateCallVoucher, 
-            (address(emergencyWithdraw), encodedWithdrawTx)
-        );
+        bytes memory encodedWithdrawTx = abi.encodeCall(EmergencyWithdraw.emergencyETHWithdraw, (recipient));
+        bytes memory delegateCallVoucher =
+            abi.encodeCall(Outputs.DelegateCallVoucher, (address(emergencyWithdraw), encodedWithdrawTx));
         mockApplication.executeOutput(delegateCallVoucher);
 
         vm.expectRevert("No ETH to withdraw");
