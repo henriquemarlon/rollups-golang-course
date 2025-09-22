@@ -71,7 +71,7 @@ contract NFTTest is Test {
                     keccak256(
                         abi.encodePacked(
                             bytes1(0xff),
-                            address(this),
+                            address(nftFactory),
                             salt,
                             keccak256(
                                 abi.encodePacked(
