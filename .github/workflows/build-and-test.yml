@@ -1,0 +1,85 @@
+name: build-and-test
+
+on:
+  push:
+    tags:
+      - "*"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and Test Matrix
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        project:
+          - src/01
+          - src/02
+          - src/03
+          - src/04
+          - src/05
+
+    steps:
+      # Checkout the codebase
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Setup Go
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: current
+
+      # Install Cartesi CLI
+      - name: Install Cartesi CLI
+        run: npm install -g @cartesi/cli@2.0.0-alpha.15
+
+      # Setup QEMU for Cartesi Machine
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # Cartesi System Requirements Check
+      - name: Run Cartesi Doctor
+        run: cartesi doctor
+
+      # Foundry Setup (only for certain projects)
+      - name: Setup Foundry
+        if: ${{ contains(fromJson('["src/04","src/05"]'), matrix.project) }}
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install Solidity Dependencies
+        if: ${{ contains(fromJson('["src/04","src/05"]'), matrix.project) }}
+        run: forge soldeer install
+        working-directory: ${{ matrix.project }}/contracts
+
+      # Format Code
+      - name: Format Code
+        run: make fmt
+        working-directory: ${{ matrix.project }}
+
+      # Build the Project
+      - name: Build Project
+        run: make build
+        working-directory: ${{ matrix.project }}
+
+      # Run tests (skip for src/01)
+      - name: Run Tests
+        if: ${{ matrix.project != 'src/01' }}
+        run: make test
+        working-directory: ${{ matrix.project }}

@@ -1,0 +1,13 @@
+{
+  "deployer": {
+    "chainId": 13370,
+    "timestamp": 1758354656,
+    "contracts": {
+      "safeERC721Mint": "0x4F85347240488E62ab1C6169Cbc532A09223efa4",
+      "emergencyWithdraw": "0xA716b0bE3a59b05A307b98c6bAf9d21dF796F37d",
+      "safeERC20Transfer": "0x86E244fbb3243f19492A3d61336e285bbf8E6154",
+      "token": "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      "nftFactory": "0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0"
+    }
+  }
+}

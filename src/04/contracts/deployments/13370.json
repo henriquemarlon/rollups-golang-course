@@ -1,0 +1,9 @@
+{
+  "deployer": {
+    "chainId": 13370,
+    "timestamp": 1758353974,
+    "contracts": {
+      "nftFactory": "0x24D451CC632BE1FF86f0AaEaAC026261fFd889A0"
+    }
+  }
+}

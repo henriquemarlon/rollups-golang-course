@@ -1,0 +1,9 @@
+[drives.root]
+builder = "docker"
+dockerfile = "Dockerfile"
+format = "ext2"
+
+[drives.data]
+builder = "empty"
+user = "dapp"
+size = "100Mb" # size can be given as string, or as a number in bytes

@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "docker"
+    directories:
+      - "src/01"
+      - "src/02"
+      - "src/03"
+      - "src/04"
+      - "src/05"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "docker" 
